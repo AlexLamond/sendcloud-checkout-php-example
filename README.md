@@ -59,7 +59,7 @@ Install the dependancies
     php -S 127.0.0.1:8070
 ```
 
-[Launch the server](http://localhost:8080)
+[Launch the server](http://localhost:8070)
 ## Contributing
 
 Contributions are welcome, please add clear descriptions of changes made
