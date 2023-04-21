@@ -9,6 +9,7 @@ Class CheckoutMethod
     public $title;
     public $description;
     public $cut_off_time;
+    public $delivery_method_type;
     public $checkoutMethodPrice;
     public array $checkoutDates;
     /**
@@ -21,6 +22,7 @@ Class CheckoutMethod
         $this->title = $method['title'];
         $this->description = $method['description'];
         $this->cut_off_time = $method['cut_off_time'];
+        $this->delivery_method_type = $method['delivery_method_type'];
         $this->checkoutMethodPrice = new CheckoutMethodPrice($method['shipping_rate']);
         $this->checkoutDates = isset($method['delivery_dates']) ? $method['delivery_dates'] : [["delivery_date"=> "Anytime", "parcel_handover_date" => "Anytime"]];
     }

@@ -51,6 +51,12 @@ class CheckoutConfig {
     {
         return $this->key.":".$this->secret;
     }
+
+    public function returnApiKey(): string
+    {
+        return $this->key;
+    }
+
     private function checkResponse($response){
         if(!isset($response['delivery_options']))
         {

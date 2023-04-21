@@ -1,6 +1,8 @@
 <?php
 
-require_once(__DIR__.'/../../private/autoload.php');
+set_include_path(__DIR__."/../../");
+
+require_once(get_include_path().'private/autoload.php');
 
 Functions::setEnvVars();
 
@@ -18,6 +20,19 @@ $configuration = (array)$dc->getAllDeliveryOptions((string)$_POST['country'], (i
         integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous">
     </script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://embed.sendcloud.sc/spp/1.0.0/api.min.js"></script>
+    <script>
+    this.dc = [];
+
+    this.dc.apikey = "<?php echo $dc->returnApiKey(); ?>"
+    this.dc.country = "<?php echo $_POST['country']; ?>"
+    this.dc.postal_code = "<?php echo $_POST['postal']; ?>"
+    this.dc.city = "<?php echo $_POST['city']; ?>";
+
+    </script>
+
+    <script src="/checkout/service_points.js"></script>
+
 </head>
 
 <body>
@@ -34,35 +49,26 @@ $configuration = (array)$dc->getAllDeliveryOptions((string)$_POST['country'], (i
         $carrier = new Carrier((array)$delivery_option['carrier']);
         $method = new CheckoutMethod((array)$delivery_option);
 
-        echo "<h5>Method: ".$method->id."</h5><hr>";
+        echo "<h5>Method: ".$method->id."</h5>";
+        echo "<h6>Type: ".$method->delivery_method_type."</h6><hr>";
 
         foreach($method->checkoutDates as $method_option)
         {
-            if($method_option['delivery_date'] != "Anytime")
+            switch($method->delivery_method_type)
             {
-                $method_option['parcel_handover_date'] = date("Y-m-d H:i", strtotime($method_option['parcel_handover_date']));
-                $method_option['delivery_date'] = date("Y-m-d", strtotime($method_option['delivery_date']));
+                case 'same_day_delivery':
+                    include(get_include_path()."private/DeliveryOptions/SameDay.php");
+                    break;
+                case 'nominated_day_delivery':
+                    include(get_include_path()."private/DeliveryOptions/NominatedDay.php");
+                    break;
+                case 'standard_delivery':
+                    include(get_include_path()."private/DeliveryOptions/Standard.php");
+                    break;
+                case 'service_point_delivery':
+                    include(get_include_path()."private/DeliveryOptions/ServicePoint.php");
+                    break;
             }
-    ?>
-            <div class="col-md-3" style="margin-bottom:10px">
-                <div class="card">
-                    <img src="<?php echo $carrier->logo_url  ?>" width="40" height="40" style="margin-top:5px;"
-                        class="card-img-top" alt="<?php echo $carrier->name ?>">
-                    <div class="card-body">
-                        <h5 class="card-title">Name: <?php echo $method->title ?></h5>
-                        <p class="card-text">Description: <?php echo $method->description ?></p>
-                        <p class="card-text">Order by: <?php echo $method_option['parcel_handover_date'] ?></p>
-                        <p class="card-text">Delivered on: <?php echo $method_option['delivery_date'] ?></p>
-                        <p class="card-text">Cost:
-                            <?php echo $method->checkoutMethodPrice->price." ".$method->checkoutMethodPrice->currency; ?>
-                        </p>
-                        <button onclick="setOption(<?php echo $method->id ?>)" class="btn btn-success"
-                            style="float:right">Select Method</button>
-                    </div>
-                </div>
-            </div>
-
-            <?php
         }
         ?>
 
