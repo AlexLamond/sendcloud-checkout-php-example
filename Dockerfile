@@ -1,6 +1,8 @@
-FROM php:8.1.18-apache
+FROM php:8.1-apache
 
 RUN apt-get update && apt-get install -y git
+
+COPY ./app /var/www/html
 
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 
@@ -8,9 +10,10 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-av
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
 # Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --check && \
-    export COMPOSER_MEMORY_LIMIT=-1 && \
-    composer self-update --1 && \
-    composer install --no-interaction --optimize-autoloader
+COPY --from=composer /usr/bin/composer /usr/bin/composer
+RUN alias composer='php /usr/bin/composer'
 
-RUN a2enmod rewrite && service apache2 restart
+WORKDIR /var/www/html
+RUN composer update && composer install
+
+RUN a2enmod rewrite && service apache2 restart  
