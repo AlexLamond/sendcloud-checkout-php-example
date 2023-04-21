@@ -38,7 +38,7 @@ class CheckoutConfig {
         curl_setopt($ch, CURLOPT_URL, $this->url."?".http_build_query($body));
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_USERPWD,$key);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type" => "application/json", "authorization" => "Basic $key"));
         $response = json_decode(curl_exec($ch), true);
         self::checkResponse($response);
         return $response;
@@ -49,12 +49,14 @@ class CheckoutConfig {
      */
     private function generateApiKey(): string
     {
-        return $this->key.":".$this->secret;
+        return base64_encode($this->key.":".$this->secret);
     }
     private function checkResponse($response){
         if(!isset($response['delivery_options']))
         {
-            throw new Exception("No delivery options have been specified. Please configure dynamic checkout first");
+            echo("No delivery options have been specified. Please ensure your dynamic checkout is published<br>");
+            echo("Public key used was: *****").substr($this->key, -5);
+            exit();
         }
     }
 }
