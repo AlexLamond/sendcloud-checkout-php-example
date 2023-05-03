@@ -44,7 +44,7 @@ Clone the project
 Go to the web directory
 
 ```bash
-  cd app/public
+  cd app
 ```
 
 Install the dependancies
